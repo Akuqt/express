@@ -24,7 +24,7 @@ class Request:
                 self.body += self.__conn.recv(self.__size)
 
     def __parse(self):
-        query, normalized = parse_route(self.__route, self.headers)
+        query, normalized = parse_route(self.headers)
         params = get_params(normalized, self.__route)
         self.params = params
         self.query = query

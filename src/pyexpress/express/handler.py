@@ -20,7 +20,7 @@ class Handler(BaseRouter):
     def __match_route(self, path: str, method: str, headers: dict[str, str]):
         if headers["method"] != method:
             return False
-        _, normalized = parse_route(path, headers)
+        _, normalized = parse_route(headers)
         return match_routes(normalized, add_slash(path))
 
     def _use_router(self, router: Router):

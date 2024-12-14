@@ -45,25 +45,20 @@ def get_route_data(path: str):
         content = path.split("?")
         if len(content) > 2:
             content = [content[0], "?".join(i for i in content[1::])]
-        res = set_route_data(content[0], content[1])
+        res = set_route_data(content[0], content[1].replace("/", ""))
     else:
         res = set_route_data(path, "")
     return res
 
 
-def parse_route(route: str, headers: dict[str, str]):
-    query: dict[str, dict[str, list[str]]] = {}
-    route = add_slash(route)
-    paths = add_slash(headers["route"]).split("/")
+def parse_route(headers: dict[str, str]):
+    query: dict[str, list[str]] = {}
+    path = add_slash(headers["route"])
     normalized = ""
-    for path in paths:
-        if path == "":
-            continue
-        route_data = get_route_data(path)
-        normalized += "/" + route_data["name"]
-        query[route_data["name"]] = parse_qs(route_data["query"])
-
-    return query, add_slash(normalized)
+    route_data = get_route_data(path)
+    normalized = route_data["name"]
+    query = parse_qs(route_data["query"])
+    return query, normalized
 
 
 def add_slash(path: str):
