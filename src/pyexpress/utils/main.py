@@ -91,7 +91,7 @@ def match_routes(real: str, defined: str):
 
 
 def get_params(real: str, defined: str) -> dict[str, str]:
-    rg = r"\:[a-zA-Z0-9]+[^\/]"
+    rg = r"\:[a-zA-Z0-9]"
     params = findall(rg, defined)
     matcher = defined
     for item in params:
