@@ -18,6 +18,12 @@ class Response:
     def set_headers(self, headers: dict[str, str]):
         self.__headers = headers
 
+    def add_header(self, key: str, value: str):
+        self.__headers[key] = value
+
+    def get_headers(self) -> dict[str, str]:
+        return self.__headers
+
     def __write_head(self):
         res = f"HTTP/1.1 {self.__status} {self.__msg}\n"
         for key in self.__headers.keys():
@@ -27,10 +33,7 @@ class Response:
 
     def json(self, data: dict):
         pre = dumps(data)
-        self.set_headers({
-            "X-Powered-By": "Express.py",
-            "content-type": "application/json",
-        })
+        self.add_header("content-type", "application/json")
         response_ = self.__write_head() + pre.encode("utf-8")
         self.__conn.send(response_)
         self.__conn.close()
