@@ -1,6 +1,7 @@
 from .handler import Handler
 from .connector import Connector
 from ..router import BaseRouter
+from collections.abc import Callable
 
 
 class Express(Handler):
@@ -8,10 +9,12 @@ class Express(Handler):
         super().__init__()
 
     def use(self, param):
-        if (isinstance(param, BaseRouter)):
+        if isinstance(param, BaseRouter):
             self._use_router(param)
 
-    def listen(self, address="127.0.0.1", port=8000, cb: callable = None):
+    def listen(
+        self, address="127.0.0.1", port=8000, cb: Callable[[str, int], any] = None
+    ):
         self.port = port
         self.address = address
         if not cb is None:

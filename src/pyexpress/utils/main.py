@@ -14,13 +14,13 @@ def __array2dict(array: list[bytes]) -> dict:
 
 
 def parse_headers(raw: bytes) -> tuple[bytes, dict]:
-    if(len(raw.decode("utf-8")) == 0):
-        return b"", {} 
-    data_ = raw.rsplit((linesep*2).encode("utf-8"))
-    if (len(data_) < 2):
+    if len(raw.decode("utf-8")) == 0:
+        return b"", {}
+    data_ = raw.rsplit((linesep * 2).encode("utf-8"))
+    if len(data_) < 2:
         data_.append(b"")
     data = data_[0].rsplit((linesep).encode("utf-8"))
-    body = (linesep*2).encode("utf-8") + data_[1]
+    body = (linesep * 2).encode("utf-8") + data_[1]
     info = data.pop(0).decode("utf-8").split(" ")
     method = info.pop(0)
     route = info.pop(0)
@@ -41,7 +41,7 @@ def set_route_data(name: str, query: str):
 
 def get_route_data(path: str):
     res: dict[str, str | bool] = {}
-    if (path.find("?") != -1):
+    if path.find("?") != -1:
         content = path.split("?")
         if len(content) > 2:
             content = [content[0], "?".join(i for i in content[1::])]
@@ -57,7 +57,7 @@ def parse_route(route: str, headers: dict[str, str]):
     paths = add_slash(headers["route"]).split("/")
     normalized = ""
     for path in paths:
-        if (path == ""):
+        if path == "":
             continue
         route_data = get_route_data(path)
         normalized += "/" + route_data["name"]
@@ -67,9 +67,9 @@ def parse_route(route: str, headers: dict[str, str]):
 
 
 def add_slash(path: str):
-    if (not path.endswith("/")):
+    if not path.endswith("/"):
         path += "/"
-    if (not path.startswith("/")):
+    if not path.startswith("/"):
         path = f"/{path}"
     return path
 
@@ -77,12 +77,12 @@ def add_slash(path: str):
 def match_routes(real: str, defined: str):
     r = real.split("/")
     d = defined.split("/")
-    if (real == defined):
+    if real == defined:
         return True
-    if (len(r) != len(d)):
+    if len(r) != len(d):
         return False
     params = get_params(real, defined)
-    if (len(params.keys()) == 0):
+    if len(params.keys()) == 0:
         return False
     final = defined
     for key in params.keys():
@@ -97,12 +97,12 @@ def get_params(real: str, defined: str) -> dict[str, str]:
     for item in params:
         matcher = matcher.replace(item, "(.*)")
     params_data = findall(matcher, real)
-    if (len(params_data) < 1):
+    if len(params_data) < 1:
         return {}
     data = params_data[0]
-    if (not type(data) is tuple):
+    if not type(data) is tuple:
         data = (data,)
-    if (len(data) != len(params)):
+    if len(data) != len(params):
         return {}
     final: dict[str, str] = {}
     for i in range(len(data)):
