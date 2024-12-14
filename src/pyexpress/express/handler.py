@@ -1,6 +1,7 @@
 from socket import socket
-from .request import Request
-from .response import Response
+from ..request import Request
+from ..response import Response
+from ..types import Middleware
 from ..router import Router, BaseRouter
 from ..utils import add_slash, parse_headers, parse_route, match_routes
 
@@ -14,15 +15,16 @@ class Handler(BaseRouter):
         self.__size = 4096
         self.__headers: dict[str, str] = {}
         self.__body: bytes = b""
+        self.__handle_middleware: bool = True
 
     def __match_route(self, path: str, method: str, headers: dict[str, str]):
-        if (headers["method"] != method):
+        if headers["method"] != method:
             return False
         _, normalized = parse_route(path, headers)
         return match_routes(normalized, add_slash(path))
 
     def _use_router(self, router: Router):
-        if (not router is None):
+        if not router is None:
             self._stack.extend(router.extract())
 
     def __head(self, conn: socket):
@@ -39,26 +41,57 @@ class Handler(BaseRouter):
     def _apply(self, conn: socket):
         self.__head(conn)
         for i in range(len(self._stack)):
-            path, method, callback = self._stack[i].get()
-            if (self.__match_route(path, method, self.__headers)):
-                self.__handle(path, callback, self.__conn,
-                              self.__headers, self.__body)
+            path, method, middlewares, callback = self._stack[i].get()
+            if self.__match_route(path, method, self.__headers):
+                self.__handle(
+                    path,
+                    middlewares,
+                    callback,
+                    self.__conn,
+                    self.__headers,
+                    self.__body,
+                )
                 break
             else:
-                if (i == len(self._stack) - 1):
-                    self.__handle(path, self.__unknown, self.__conn,
-                                  self.__headers, self.__body)
+                if i == len(self._stack) - 1:
+                    self.__handle(
+                        path,
+                        None,
+                        self.__unknown,
+                        self.__conn,
+                        self.__headers,
+                        self.__body,
+                    )
 
     def __unknown(self, _, res: Response):
-        res.status(404).json({
-            "error": "Not Found"
-        })
+        res.status(404).json({"error": "Not Found"})
 
-    def __handle(self, path: str, callback: callable, conn: socket, headers: dict[str, str], body: bytes):
+    def __next(self):
+        self.__handle_middleware = True
+
+    def __handle(
+        self,
+        path: str,
+        middlewares: list[Middleware],
+        callback: callable,
+        conn: socket,
+        headers: dict[str, str],
+        body: bytes,
+    ):
         path = add_slash(path)
         req = Request(headers, body, conn, path)
         res = Response(conn)
         route_ = req.headers["route"]
         method_ = req.headers["method"]
+
+        if middlewares is not None:
+            for middleware in middlewares:
+                if self.__handle_middleware:
+                    self.__handle_middleware = False
+                    middleware(req, res, self.__next)
+
+        if callback is None:
+            raise Exception("You need to define a callback!")
+
         callback(req, res)
-        print(f"{method_} -- {route_} -- {res.get_status()}")
+        print(f"{method_} {route_} -- {res.get_status()}")
