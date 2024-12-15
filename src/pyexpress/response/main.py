@@ -41,6 +41,12 @@ class Response(Global):
         self.__conn.send(response_)
         self.__conn.close()
 
+    def send(self, data: str):
+        self.add_header("content-type", "text/html; charset=utf-8")
+        response_ = self.__write_head() + data.encode("utf-8")
+        self.__conn.send(response_)
+        self.__conn.close()
+
     def status(self, code):
         self.__status = code
         self.__msg = status_code[code]
