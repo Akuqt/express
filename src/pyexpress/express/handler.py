@@ -2,6 +2,7 @@ from socket import socket
 from ..request import Request
 from ..response import Response
 from ..types import Middleware
+from ..assets import HTML_PAGES
 from ..router import Router, BaseRouter
 from ..utils import add_slash, parse_headers, parse_route, match_routes
 
@@ -17,6 +18,7 @@ class Handler(BaseRouter):
         self.__headers: dict[str, str] = {}
         self.__body: bytes = b""
         self.__handle_middleware: bool = True
+        self.__pages = HTML_PAGES()
 
     def __match_route(self, path: str, method: str, headers: dict[str, str]):
         if headers["method"] != method:
@@ -43,7 +45,18 @@ class Handler(BaseRouter):
         self.__head(conn)
         for i in range(len(self._stack)):
             path, method, middlewares, callback = self._stack[i].get()
-            if self.__match_route(path, method, self.__headers):
+            matcher = self.__match_route(path, method, self.__headers)
+            if matcher:
+                self.__handle(
+                    path,
+                    middlewares,
+                    callback,
+                    self.__conn,
+                    self.__headers,
+                    self.__body,
+                )
+                break
+            if not matcher and path.find("*") != -1:
                 self.__handle(
                     path,
                     middlewares,
@@ -64,8 +77,8 @@ class Handler(BaseRouter):
                         self.__body,
                     )
 
-    def __unknown(self, _, res: Response):
-        res.status(404).json({"error": "Not Found"})
+    def __unknown(self, req: Request, res: Response):
+        res.status(404).send(self.__pages.page_404(req.headers["route"]))
 
     def __next(self):
         self.__handle_middleware = True
