@@ -1,10 +1,13 @@
 from .meta import Metadata
 from ..types import Middleware, Callback
+from ..common import Global
 
 
-class BaseRouter:
+class BaseRouter(Global):
     def __init__(self) -> None:
+        super().__init__()
         self._stack: list[Metadata] = []
+        self.class_id: str = "Router"
 
     def __get_middlewares_and_callback(self, args: tuple[Middleware | Callback]):
         middleware_stack: list[Middleware] = []

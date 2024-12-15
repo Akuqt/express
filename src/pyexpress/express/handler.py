@@ -9,6 +9,7 @@ from ..utils import add_slash, parse_headers, parse_route, match_routes
 class Handler(BaseRouter):
     def __init__(self) -> None:
         super().__init__()
+        self.class_id = "Handler"
         self._port = 8000
         self._address = "127.0.0.1"
         self.__conn: socket

@@ -1,15 +1,17 @@
 from .handler import Handler
 from .connector import Connector
 from ..router import BaseRouter
+from ..common import Global
 from collections.abc import Callable
 
 
 class Express(Handler):
     def __init__(self) -> None:
         super().__init__()
+        self.class_id = "Express"
 
-    def use(self, param):
-        if isinstance(param, BaseRouter):
+    def use(self, param: Global):
+        if param.class_id == "Router":
             self._use_router(param)
 
     def listen(

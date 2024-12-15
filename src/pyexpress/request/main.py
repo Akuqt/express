@@ -1,12 +1,15 @@
 from json import loads
 from socket import socket
 from ..utils import get_params, parse_route
+from ..common import Global
 
 
-class Request:
+class Request(Global):
     def __init__(
         self, headers: dict[str, str], body: bytes | dict, conn: socket, route: str
     ) -> None:
+        super().__init__()
+        self.class_id = "Request"
         self.__conn = conn
         self.__size = 4096
         self.body = body

@@ -1,15 +1,18 @@
 from json import dumps
 from socket import socket
 from ..utils import status_code
+from ..common import Global
 
 
-class Response:
+class Response(Global):
     __default_headers = {
         "X-Powered-By": "Express.py",
         "content-type": "text/html; charset=utf-8",
     }
 
     def __init__(self, conn: socket) -> None:
+        super().__init__()
+        self.class_id = "Response"
         self.__conn = conn
         self.__headers = self.__default_headers
         self.__status = 200
