@@ -2,7 +2,36 @@ from src import Express, Response, Request, Router
 
 
 def get(req: Request, res: Response):
-    res.json({"Hello": "World!"})
+    res.json(
+        [
+            {
+                "id": 1,
+                "name": "Cathy Borer",
+                "company": "Boyer and Sons",
+                "username": "Macey42",
+                "email": "Zackery.McKenzie92@hotmail.com",
+                "address": "8996 Ruecker Extensions",
+                "zip": "86714",
+                "state": "Washington",
+                "country": "Ukraine",
+                "phone": "569.257.2774 x61895",
+                "photo": "https://json-server.dev/ai-profiles/82.png",
+            },
+            {
+                "id": 2,
+                "name": "Cecil Faker",
+                "company": "Kuhic - Abbott",
+                "username": "Sabryna_Bechtelar60",
+                "email": "Henry12@gmail.com",
+                "address": "65230 E 4th Avenue",
+                "zip": "86942-7603",
+                "state": "Delaware",
+                "country": "Guernsey",
+                "phone": "287-671-1038",
+                "photo": "https://json-server.dev/ai-profiles/54.png",
+            },
+        ]
+    )
 
 
 def get_test(req: Request, res: Response):
