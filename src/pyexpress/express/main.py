@@ -1,6 +1,5 @@
 from .handler import Handler
 from .connector import Connector
-from ..router import BaseRouter
 from ..common import Global
 from collections.abc import Callable
 
@@ -27,8 +26,9 @@ class Express(Handler):
             while True:
                 conn = connector.get_conn()
                 self._apply(conn)
-
         except KeyboardInterrupt:
             print("FIN")
         except Exception as e:
             print(e.with_traceback())
+        finally:
+            connector.close()
