@@ -6,6 +6,7 @@ from ..common import Global
 
 class Response(Global):
     __default_headers = {
+        "access-control-allow-origin": "*",
         "X-Powered-By": "Express.py",
         "content-type": "text/html; charset=utf-8",
     }
@@ -31,21 +32,21 @@ class Response(Global):
         res = f"HTTP/1.1 {self.__status} {self.__msg}\n"
         for key in self.__headers.keys():
             res += f"{key}: {self.__headers[key]}\n"
-        res += "\n\n"
+        res += "\n"
         return res.encode("utf-8")
 
-    def json(self, data: dict):
+    def json(self, data: dict | list):
         pre = dumps(data)
+        self.add_header("content-length", f"{len(pre.encode("utf-8"))}")
         self.add_header("content-type", "application/json")
         response_ = self.__write_head() + pre.encode("utf-8")
         self.__conn.send(response_)
-        self.__conn.close()
 
     def send(self, data: str):
+        self.add_header("content-length", f"{len(data)}")
         self.add_header("content-type", "text/html; charset=utf-8")
         response_ = self.__write_head() + data.encode("utf-8")
         self.__conn.send(response_)
-        self.__conn.close()
 
     def status(self, code):
         self.__status = code
