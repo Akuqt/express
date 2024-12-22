@@ -32,8 +32,8 @@ class Handler(BaseRouter):
 
     def __head(self, conn: socket):
         self.__conn = conn
-        base = self.__conn.recv(self.__size)
         try:
+            base = self.__conn.recv(self.__size)
             content, headers = parse_headers(base)
             headers["route"] = add_slash(headers["route"])
             self.__headers = headers
